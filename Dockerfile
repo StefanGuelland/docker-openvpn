@@ -1,9 +1,9 @@
 # Original credit: https://github.com/jpetazzo/dockvpn
 
 # Leaner build then Ubunutu
-FROM debian:jessie
+FROM resin/rpi-raspbian:latest
 
-MAINTAINER Kyle Manna <kyle@kylemanna.com>
+MAINTAINER Stefan Guelland <docker@sguelland.de>
 
 RUN apt-get update && \
     apt-get install -y openvpn iptables git-core && \

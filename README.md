@@ -2,50 +2,42 @@
 
 OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
 
-Extensively tested on [Digital Ocean $5/mo node](http://bit.ly/1C7cKr3) and has
-a corresponding [Digital Ocean Community Tutorial](http://bit.ly/1AGUZkq).
+Modifyed to run on raspberry pi
 
-#### Upstream Links
-
-* Docker Registry @ [kylemanna/openvpn](https://registry.hub.docker.com/u/kylemanna/openvpn)
-* GitHub @ [kylemanna/docker-openvpn](https://github.com/kylemanna/docker-openvpn)
-
-#### Example Service
-
-* [backroad.io](http://beta.backroad.io?utm_source=kylemanna/openvpn&utm_medium=readme&utm_campaign=20150621) - powered by *kylemanna/openvpn*
+Forked from kylemanna/docker-openvpn
 
 ## Quick Start
 
 * Create the `$OVPN_DATA` volume container, i.e. `OVPN_DATA="ovpn-data"`
 
-        docker run --name $OVPN_DATA -v /etc/openvpn busybox
+        docker run --name $OVPN_DATA -v /etc/openvpn armbuild/busybox
 
 * Initialize the `$OVPN_DATA` container that will hold the configuration files and certificates
 
-        docker run --volumes-from $OVPN_DATA --rm kylemanna/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
-        docker run --volumes-from $OVPN_DATA --rm -it kylemanna/openvpn ovpn_initpki
+        docker run --volumes-from $OVPN_DATA --rm scire/rpi-openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
+        docker run --volumes-from $OVPN_DATA --rm -it scire/rpi-openvpn  ovpn_initpki
 
 * Start OpenVPN server process
 
     - On Docker [version 1.2](http://blog.docker.com/2014/08/announcing-docker-1-2-0/) and newer
 
-            docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --cap-add=NET_ADMIN kylemanna/openvpn
+            docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --cap-add=NET_ADMIN scire/rpi-openvpn
 
     - On Docker older than version 1.2
 
-            docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --privileged kylemanna/openvpn
+            docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --privileged scire/rpi-openvpn
 
 * Generate a client certificate without a passphrase
 
-        docker run --volumes-from $OVPN_DATA --rm -it kylemanna/openvpn easyrsa build-client-full CLIENTNAME nopass
+        docker run --volumes-from $OVPN_DATA --rm -it scire/rpi-openvpn easyrsa build-client-full CLIENTNAME nopass
 
 * Retrieve the client configuration with embedded certificates
 
-        docker run --volumes-from $OVPN_DATA --rm kylemanna/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run --volumes-from $OVPN_DATA --rm scire/rpi-openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
 
 * Create an environment variable with the name DEBUG and value of 1 to enable debug output (using "docker -e").
 
-        for example - docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --privileged -e DEBUG=1 kylemanna/openvpn
+        for example - docker run --volumes-from $OVPN_DATA -d -p 1194:1194/udp --privileged -e DEBUG=1 scire/rpi-openvpn
 
 ## How Does It Work?
 
@@ -155,13 +147,3 @@ of a guarantee in the future.
 * OpenVPN config files, PKI keys and certs are stored on a storage
   volume for re-use across containers
 * Addition of tls-auth for HMAC security
-
-## Tested On
-
-* Docker hosts:
-  * server a [Digital Ocean](https://www.digitalocean.com/?refcode=d19f7fe88c94) Droplet with 512 MB RAM running Ubuntu 14.04
-* Clients
-  * Android App OpenVPN Connect 1.1.14 (built 56)
-     * OpenVPN core 3.0 android armv7a thumb2 32-bit
-  * OS X Mavericks with Tunnelblick 3.4beta26 (build 3828) using openvpn-2.3.4
-  * ArchLinux OpenVPN pkg 2.3.4-1
